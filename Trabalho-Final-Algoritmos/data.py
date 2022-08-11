@@ -18,4 +18,3 @@ with conn:
 with conn:
     cur = conn.cursor()
     cur.execute('''CREATE TABLE compras(id INTEGER, comprador TEXT, data DATE, valor DOUBLE, PRIMARY KEY('id' AUTOINCREMENT), FOREIGN KEY ('id') REFERENCES 'titulo' ('id') ON DELETE CASCADE)''')
-

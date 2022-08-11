@@ -161,21 +161,21 @@ def busca():
 def editar():
 
     buscaId = int(input('Insira o código do produto a ser editado:\n'))
-    clearTerminal()
-    
+
     with conn:
         cur = conn.cursor()
         result = cur.execute('SELECT * FROM titulo WHERE id ={}'.format(buscaId))
-        result = cur.fetchone()
-        if result == None:
-            print('Não foi possível encontrar prdutos com o código: {}'.format(buscaId))
+        result = cur.fetchall()
+        
+        if result == None or len(result)==0:
+            print('Não foi possível encontrar produtos com o código: {}'.format(buscaId))
             time.sleep(1.5)
             editar()
-        
-        print(f'''NOME: {result[1]} | CATEGORIA: {buscarCateg(result[2])} | STATUS: {"disponível" if result[4] == 1 else "indisponível"} | PREÇO: R${result[3]} | CÓDIGO: {result[0]} |''')
-        print()
-
-
+        else:
+            for i in result:
+                clearTerminal()
+                print(f'''NOME: {i[1]} | CATEGORIA: {buscarCateg(i[2])} | STATUS: {"disponível" if i[4] == 1 else "indisponível"} | PREÇO: R${i[3]} | CÓDIGO: {i[0]} |''')
+                print()
 
     escEdit = int(input('''O que você gostaria de editar?\n
 [1] - Nome do produto
@@ -195,19 +195,25 @@ def editar():
             
             result = cur.execute('SELECT * FROM titulo')
             clearTerminal()
-            result = cur.fetchone()
+            result = cur.fetchall()
             
             clearTerminal()
-            print(f'''NOME: {result[1]} | CATEGORIA: {buscarCateg(result[2])} | STATUS: {"disponível" if result[4] == 1 else "indisponível"} | PREÇO: R${result[3]} | CÓDIGO: {result[0]} |''')
-            print()
-             
+            for l in result:
+                print('PRODUTO EDITADO COM SUCESSO')
+                restartMenu()
+                
             
 
 
     elif escEdit == 2:
         newTipo = int(input('''Escolha a nova categoria do produto\n
-[1] - Filmes\n
-[2] - Séries\n
+[1] - Filmes
+[2] - Séries
+[3] - Documentários\n'''))
+        while newTipo != 1 and newTipo != 2 and newTipo != 3:
+            newTipo = int(input('''Escolha a nova categoria do produto\n
+[1] - Filmes
+[2] - Séries
 [3] - Documentários\n'''))
 
         with conn:
@@ -216,9 +222,14 @@ def editar():
             query = ("UPDATE titulo SET tipo = {} WHERE id = {}".format(newTipo, buscaId))
             cur.execute(query)
 
-            print(f'''NOME: {result[1]} | CATEGORIA: {buscarCateg(result[2])} | STATUS: {"disponível" if result[4] == 1 else "indisponível"} | PREÇO: R${result[3]} | CÓDIGO: {result[0]} |''')
-            print()
+            result = cur.execute('SELECT * FROM titulo')
+            clearTerminal()
+            result = cur.fetchone()
+
             clearTerminal()  
+            print('''PRODUTO EDITADO COM SUCESSO''')
+            print()
+            restartMenu()
             
     elif escEdit == 3:
         newPreco = float(input('Digite o  novo preço do produto:\n'))
@@ -226,25 +237,40 @@ def editar():
         with conn:
             cur = conn.cursor()
             cur.execute('PRAGMA table_info(titulo)')
-            query = ("UPDATE titulo SET tipo = {} WHERE id = {}".format(newPreco, buscaId))
+            query = ("UPDATE titulo SET preco = {} WHERE id = {}".format(newPreco, buscaId))
             cur.execute(query)
 
-            print(f'''NOME: {result[1]} | CATEGORIA: {buscarCateg(result[2])} | STATUS: {"disponível" if result[4] == 1 else "indisponível"} | PREÇO: R${result[3]} | CÓDIGO: {result[0]} |''')
-            print()
             clearTerminal()  
+            print('''PRODUTO EDITADO COM SUCESSO''')
+            print()
+            restartMenu()
 
     elif escEdit == 4:
-        newStatus = int(input('Novo status do produto'))
+        newStatus = int(input('''Novo status do produto
+[1] - Disponível
+[2] - Indisponível
+'''))
+        while newStatus != 1 and newStatus != 2:
+            clearTerminal()
+            newStatus = int(input('''Novo status do produto
+[1] - Disponível
+[2] - Indisponível
+'''))
 
         with conn:
             cur = conn.cursor()
             cur.execute('PRAGMA table_info(titulo)')
-            query = ("UPDATE titulo SET tipo = {} WHERE id = {}".format(newStatus, buscaId))
+            query = ("UPDATE titulo SET status = {} WHERE id = {}".format(newStatus, buscaId))
             cur.execute(query)
 
-            print(f'''NOME: {result[1]} | CATEGORIA: {buscarCateg(result[2])} | STATUS: {"disponível" if result[4] == 1 else "indisponível"} | PREÇO: R${result[3]} | CÓDIGO: {result[0]} |''')
-            print()
+            response = cur.execute('SELECT * FROM titulo WHERE id = {}'.format(buscaId))
+            response = cur.fetchall()
+
             clearTerminal()  
+            for n in response:
+                print('''PRODUTO EDITADO COM SUCESSO''')
+                print()
+                restartMenu()
 
 #Imprime os dados do titulo de acordo com o filtro selecionado
 def relatorio():
